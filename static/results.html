@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potential Matches - Lost & Found AI</title>
+    <link rel="icon" type="image/x-icon" href="/webcon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .item-card-match { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .item-card-match:hover { transform: translateY(-2px); box-shadow: 0 5px 10px -2px rgba(0, 0, 0, 0.1); }
+        .score-bar-bg { background-color: #e2e8f0; border-radius: 9999px; height: 0.5rem; overflow: hidden; }
+        .score-bar-fill { height: 100%; transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="/" class="flex items-center">
+                    <img class="h-8 w-auto" src="/logo.png" alt="Logo">
+                </a>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+                    <a href="found.html" class="text-gray-600 hover:text-indigo-600">Found Item</a>
+                    <a href="lost.html" class="text-gray-600 hover:text-indigo-600">Lost Item</a>
+                    <a href="my-items.html" class="text-gray-600 hover:text-indigo-600">My Items</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div id="results-container" class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="p-6 text-center bg-gradient-to-r from-indigo-500 to-green-500">
+                <h2 class="text-3xl font-extrabold text-white mb-2">Item Details and Potential Matches</h2>
+                <p id="reported-item-message" class="text-white text-lg"></p>
+            </div>
+
+            <div class="p-8">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Your Reported Item:</h3>
+                <div class="flex items-center space-x-4 mb-8 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                    <img id="reported-item-image" src="" alt="Your reported item" class="h-24 w-24 object-cover rounded-lg">
+                    <div>
+                        <p class="text-lg font-medium text-gray-900" id="reported-item-name"></p>
+                        <p class="text-sm text-gray-600">Category: <span id="reported-item-category"></span></p>
+                        <a id="view-reported-item-link" href="#" class="text-indigo-600 hover:underline text-sm inline-flex items-center mt-1">
+                            <i data-feather="external-link" class="mr-1 h-3 w-3"></i> View Full Details
+                        </a>
+                    </div>
+                </div>
+
+                <div id="potential-matches-section">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">High-Confidence Matches Found:</h3>
+                    <div id="matches-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        </div>
+                    <p id="no-matches-message" class="text-center text-gray-600 text-lg py-8 hidden">
+                        No high-confidence matches found at this time. Our system is strict to ensure accuracy. Please check back later, as new items are reported frequently.
+                    </p>
+                </div>
+            </div>
+
+            <div class="px-8 pb-6 text-center border-t pt-6">
+                <a href="/" class="inline-block px-6 py-2 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700">Back to Home</a>
+            </div>
+        </div>
+
+        <div id="error-container" class="text-center p-8 bg-white shadow-lg rounded-lg hidden">
+            <h2 class="text-2xl font-bold text-red-600">Error Loading Results</h2>
+            <p class="mt-2 text-gray-500">There was a problem displaying the item or its matches. Please try reporting again.</p>
+            <a href="/" class="mt-6 inline-block px-6 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+
+        async function claimItem(reportingItemId, reportingItemCollection, matchedItemId, matchedItemCollection) {
+            if (!confirm('Are you sure you want to claim this match? This will notify both parties by email.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/claim-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        reporting_item_id: reportingItemId,
+                        reporting_item_collection: reportingItemCollection,
+                        matched_item_id: matchedItemId,
+                        matched_item_collection: matchedItemCollection
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to claim item.');
+                }
+                
+                window.location.href = 'claim-success.html';
+
+            } catch (error) {
+                alert('Error claiming item: ' + error.message);
+            }
+        }
+        
+        function dismissMatch(buttonElement) {
+            const card = buttonElement.closest('.item-card-match');
+            if(card) {
+                card.style.transition = 'opacity 0.3s ease';
+                card.style.opacity = '0';
+                setTimeout(() => card.style.display = 'none', 300);
+            }
+        }
+
+        function createMatchCard(reportedItem, match) {
+            const isMatchClaimed = match.status === 'claimed';
+            const isReportedItemClaimed = reportedItem.status !== 'available';
+            const itemType = match.finder_name ? 'Found Item' : 'Lost Item';
+            const itemCollection = match.finder_name ? 'found_items_collection' : 'lost_items_collection';
+            
+            // --- NEW: Logic for confidence level ---
+            const scorePercent = Math.round(match.score * 100);
+            let confidenceLabel = '';
+            let scoreBarColor = '';
+
+            if (scorePercent >= 92) {
+                confidenceLabel = 'High Confidence';
+                scoreBarColor = 'bg-green-500';
+            } else if (scorePercent >= 88) {
+                confidenceLabel = 'Good Confidence';
+                scoreBarColor = 'bg-teal-500';
+            } else {
+                confidenceLabel = 'Possible Match';
+                scoreBarColor = 'bg-blue-500';
+            }
+            
+            const claimButtonHtml = isReportedItemClaimed 
+                ? `<button class="w-full bg-gray-400 text-white text-sm px-3 py-1.5 rounded-md" disabled>Your Item Claimed</button>`
+                : `<button onclick="claimItem('${reportedItem.item_id}', '${reportedItem.collection}', '${match.item_id}', '${itemCollection}')"
+                       class="w-full bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5 rounded-md transition duration-150">
+                       <i data-feather="check" class="inline-block mr-1 h-4 w-4"></i> Claim This Match
+                   </button>`;
+
+            return `
+                <div class="bg-gray-50 rounded-lg shadow-sm item-card-match p-4 border border-gray-200 flex flex-col justify-between ${isMatchClaimed ? 'opacity-60' : ''}">
+                    <div>
+                        <img src="${match.image_url}" alt="${match.item_name}" class="w-full h-32 object-cover rounded-md mb-3">
+                        <h4 class="font-semibold text-gray-900 truncate" title="${match.item_name}">${match.item_name}</h4>
+                        <p class="text-sm text-gray-600">Reported: ${match.upload_time}</p>
+                        <div class="my-3">
+                            <div class="flex justify-between items-center text-xs text-gray-500 mb-1">
+                                <span>Match Score: ${scorePercent}%</span>
+                                <span class="font-semibold ${scoreBarColor.replace('bg-', 'text-')}">${confidenceLabel}</span>
+                            </div>
+                            <div class="score-bar-bg w-full">
+                                <div class="score-bar-fill ${scoreBarColor}" style="width: ${scorePercent}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2 space-y-2">
+                         ${isMatchClaimed
+                            ? '<div class="text-center text-blue-600 text-sm font-semibold flex items-center justify-center"><i data-feather="info" class="mr-1 h-4 w-4"></i> Already Claimed</div>'
+                            : claimButtonHtml
+                        }
+                        <a href="item-details.html?id=${match.item_id}&collection=${itemCollection}" target="_blank" class="block w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1.5 rounded-md">
+                           View Details
+                        </a>
+                        ${!isMatchClaimed && !isReportedItemClaimed 
+                            ? `<button onclick="dismissMatch(this)" class="w-full text-left text-xs text-gray-500 hover:text-red-600 hover:underline pl-1">Not a match</button>`
+                            : ''
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const reportDetailsString = sessionStorage.getItem('reportDetails');
+            const resultsContainer = document.getElementById('results-container');
+            const errorContainer = document.getElementById('error-container');
+
+            if (!reportDetailsString) {
+                resultsContainer.classList.add('hidden');
+                errorContainer.classList.remove('hidden');
+                feather.replace();
+                return;
+            }
+
+            const reportData = JSON.parse(reportDetailsString);
+            const reportedItem = reportData.reported_item_payload;
+            const potentialMatches = reportData.potential_matches;
+
+            document.getElementById('reported-item-image').src = reportedItem.image_url;
+            document.getElementById('reported-item-name').textContent = reportedItem.item_name;
+            document.getElementById('reported-item-category').textContent = reportedItem.category;
+            
+            const viewReportedItemLink = document.getElementById('view-reported-item-link');
+            viewReportedItemLink.href = `item-details.html?id=${reportedItem.item_id}&collection=${reportData.reported_item_collection}`;
+
+            const messageElement = document.getElementById('reported-item-message');
+            const itemType = reportData.reported_item_collection === 'found_items_collection' ? 'found' : 'lost';
+            messageElement.textContent = `You reported a ${itemType} item. Here are the high-confidence matches we found.`;
+
+            const matchesGrid = document.getElementById('matches-grid');
+            const noMatchesMessage = document.getElementById('no-matches-message');
+
+            if (potentialMatches && potentialMatches.length > 0) {
+                matchesGrid.innerHTML = potentialMatches.map(match => createMatchCard({
+                    item_id: reportedItem.item_id,
+                    collection: reportData.reported_item_collection,
+                    status: reportedItem.status
+                }, match)).join('');
+                noMatchesMessage.classList.add('hidden');
+            } else {
+                noMatchesMessage.classList.remove('hidden');
+            }
+
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

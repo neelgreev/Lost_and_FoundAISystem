@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Match Found!</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 20px; color: #333;">
+
+    <h2 style="color: #4F46E5;">Great News! A Match Was Found!</h2>
+    
+    <p>
+        Hello <strong>{{ loser_name }}</strong> and <strong>{{ finder_name }}</strong>,
+    </p>
+    
+    <p>
+        We've found a high-confidence match for the item: <strong>{{ item_name }}</strong>.
+    </p>
+    
+    <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">Contact Information:</h3>
+    
+    <p>
+        Please get in touch to arrange the return of the item.
+    </p>
+
+    <h4>Finder's Details ({{ finder_name }})</h4>
+    <ul>
+        <li><strong>Email:</strong> {{ finder_contact_email }}</li>
+        <li><strong>Phone:</strong> {{ finder_phone }}</li>
+    </ul>
+
+    <h4>Owner's Details ({{ loser_name }})</h4>
+    <ul>
+        <li><strong>Email:</strong> {{ loser_contact_email }}</li>
+        <li><strong>Phone:</strong> {{ loser_phone }}</li>
+    </ul>
+
+    <p style="margin-top: 30px; font-size: 0.9em; color: #777;">
+        - The Lost & Found AI Team
+    </p>
+
+</body>
+</html>

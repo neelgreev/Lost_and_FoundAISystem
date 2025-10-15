@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sentence-transformers
+qdrant-client
+fastapi-mail>=1.4.5
+pydantic
+python-multipart
+Jinja2
+Pillow

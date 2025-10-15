@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Successful! - Lost & Found AI</title>
+    <link rel="icon" type="image/x-icon" href="/webcon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Animated Checkmark SVG */
+        .success-checkmark {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+        .success-checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: #4ade80; /* green-400 */
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .success-checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            stroke-width: 4;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        /* General animation for the card */
+        @keyframes pop-in {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .success-card {
+            animation: pop-in 0.5s 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-indigo-100 font-sans flex items-center justify-center min-h-screen">
+    
+    <div class="max-w-2xl mx-auto py-20 px-4 sm:px-6 lg:px-8 text-center">
+        <div class="bg-white/70 backdrop-blur-xl shadow-2xl rounded-2xl p-8 sm:p-12 success-card">
+            
+            <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="success-checkmark__circle" cx="26" cy="26" r="25"/>
+                <path class="success-checkmark__check" fill="none" stroke="#4ade80" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+
+            <h2 class="text-4xl font-extrabold text-gray-900 mt-6">It's a Match!</h2>
+            <p class="text-lg text-gray-700 mt-4 mb-8">
+                Great news! Both parties have been notified via email. The journey to reunite the item with its owner has begun.
+            </p>
+
+            <div class="text-left bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center">
+                    <i data-feather="arrow-right-circle" class="mr-2 h-5 w-5 text-indigo-500"></i>
+                    What's Next?
+                </h3>
+                <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                    <li><strong>Check Your Email:</strong> Look for an email from us with the subject "Item Claimed...". Don't forget the spam folder!</li>
+                    <li><strong>Make Contact:</strong> The email contains the other person's contact details. Reach out to them to arrange a safe meeting.</li>
+                    <li><strong>Item Returned:</strong> Once the item is safely returned, you can mark it as "Returned" from the item's detail page.</li>
+                </ol>
+            </div>
+
+            <div class="mt-10">
+                <a href="/" class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-transform transform hover:scale-105">
+                    <i data-feather="home" class="mr-2 h-5 w-5"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+        
+        // Trigger confetti on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // A little burst from the center
+            confetti({
+                particleCount: 150,
+                spread: 90,
+                origin: { y: 0.6 }
+            });
+        });
+    </script>
+</body>
+</html>

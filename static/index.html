@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found AI</title>
+    <link rel="icon" type="image/x-icon" href="/webcon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        /* --- Animation & Aesthetic Styles --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .fade-in-up-delay-1 { animation: fadeInUp 0.6s 0.3s ease-out forwards; opacity: 0; }
+        .fade-in-up-delay-2 { animation: fadeInUp 0.6s 0.6s ease-out forwards; opacity: 0; }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating-emoji {
+            display: inline-block;
+            font-size: clamp(2rem, 5vw, 3rem); /* Responsive font size */
+            line-height: 1;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+            animation: float 4s ease-in-out infinite;
+        }
+        .emoji-2 {
+            animation-delay: 2s; /* Stagger the second emoji's animation */
+        }
+        
+        .item-card {
+            opacity: 0; /* Start hidden for animation */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        .item-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .item-card img { height: 12rem; object-fit: cover; }
+
+        .status-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            color: white; font-weight: bold; font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none; z-index: 10;
+            transition: background-color 0.3s ease;
+        }
+        .claimed-overlay { background-color: rgba(22, 163, 74, 0.7); } /* Green */
+        .returned-overlay { background-color: rgba(59, 130, 246, 0.7); } /* Blue */
+
+        /* --- Other Styles --- */
+        .card-content { z-index: 20; position: relative; }
+        .workflow-step {
+            position: relative; padding: 2rem; border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: white; margin-bottom: 3rem; text-align: left;
+        }
+        .workflow-step::after {
+            content: ''; position: absolute; left: 50%; bottom: -2rem;
+            transform: translateX(-50%); width: 0; height: 0;
+            border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 20px solid #D1D5DB; z-index: 0;
+        }
+        .workflow-step:last-child::after { display: none; }
+        .icon-box {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 3rem; height: 3rem; border-radius: 0.75rem; margin-bottom: 1rem;
+        }
+        .user-action .icon-box { background-color: #E0E7FF; color: #4F46E5; }
+        .system-action .icon-box { background-color: #D1FAE5; color: #10B981; }
+        .notification-action .icon-box { background-color: #DBEAFE; color: #2563EB; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="/" class="flex items-center">
+                    <img class="h-8 w-auto" src="/logo.png" alt="Logo">
+                </a>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/" class="text-indigo-600 font-medium">Home</a>
+                    <a href="found.html" class="text-gray-600 hover:text-indigo-600">Found Item</a>
+                    <a href="lost.html" class="text-gray-600 hover:text-indigo-600">Lost Item</a>
+                    <a href="my-items.html" class="text-gray-600 hover:text-indigo-600">My Items</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="relative bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div class="w-[40rem] h-[40rem] bg-gradient-to-tr from-pink-500 to-orange-500 rounded-full filter blur-3xl opacity-30 animate-pulse"></div>
+        </div>
+        <div class="absolute top-0 right-0">
+            <div class="w-[30rem] h-[30rem] bg-gradient-to-bl from-teal-400 to-blue-500 rounded-full filter blur-3xl opacity-20"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto py-20 px-4 sm:py-28 sm:px-6 lg:px-8 text-center">
+             <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl fade-in-up">
+                Lost Something? Found Something?
+                <span class="inline-block">
+                    <span class="floating-emoji">🤔</span><span class="floating-emoji emoji-2">🎉</span>
+                </span>
+             </h1>
+             <p class="mt-6 max-w-2xl mx-auto text-xl text-indigo-200 fade-in-up-delay-1">
+                Let our AI technology help reunite you with your belongings 🔄
+             </p>
+             <div class="mt-10 flex flex-wrap justify-center gap-4 fade-in-up-delay-2">
+                 <a href="found.html" class="w-full md:w-auto px-8 py-4 text-base font-medium rounded-full text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    I FOUND an Item 🎁
+                 </a>
+                 <a href="lost.html" class="w-full md:w-auto px-8 py-4 text-base font-medium rounded-full text-white bg-white/20 border border-white/30 backdrop-blur-sm hover:bg-white/30 shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    I LOST an Item 🔍
+                 </a>
+             </div>
+        </div>
+    </div>
+    <div class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Recently Found Items</h2>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900">Can you help find the owner?</p>
+            </div>
+            <div id="found-items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <p class="col-span-4 text-center text-gray-500">Loading items...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-base text-green-600 font-semibold tracking-wide uppercase">Recently Reported Lost</h2>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900">Have you seen any of these?</p>
+            </div>
+            <div id="lost-items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <p class="col-span-4 text-center text-gray-500">Loading items...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gradient-to-r from-gray-100 to-gray-200 py-16 mt-12">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-4">How It Works</h2>
+            <p class="text-lg text-gray-700">
+                Understand the journey of an item from being reported to a happy reunion.
+            </p>
+        </div>
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="workflow-step user-action">
+                <div class="icon-box"><i data-feather="plus-circle" class="h-6 w-6"></i></div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">1. Report an Item</h3>
+                <p class="text-gray-700">A user reports an item as 'Found' or 'Lost', providing a description, category, location, contact info, and an image.</p>
+            </div>
+            <div class="workflow-step system-action">
+                <div class="icon-box"><i data-feather="image" class="h-6 w-6"></i></div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">2. AI Image Analysis</h3>
+                <p class="text-gray-700">Our AI model generates a numerical signature (embedding) from the image, capturing its key visual features.</p>
+            </div>
+            <div class="workflow-step system-action">
+                <div class="icon-box"><i data-feather="search" class="h-6 w-6"></i></div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">3. Smart Match Search</h3>
+                <p class="text-gray-700">The AI instantly searches for visually similar items in the opposite category (e.g., searches Lost items if you Found one), filtering for a high confidence score.</p>
+            </div>
+            <div class="workflow-step user-action">
+                <div class="icon-box"><i data-feather="list" class="h-6 w-6"></i></div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">4. Review and Claim</h3>
+                <p class="text-gray-700">You are shown a list of potential matches. If you find yours, you can claim it with a single click.</p>
+            </div>
+            <div class="workflow-step notification-action">
+                <div class="icon-box"><i data-feather="mail" class="h-6 w-6"></i></div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">5. Automated Notification</h3>
+                <p class="text-gray-700">Once a claim is made, both parties automatically receive an email with each other's contact information to coordinate the return.</p>
+            </div>
+            <div class="workflow-step user-action">
+                 <div class="icon-box"><i data-feather="check-square" class="h-6 w-6"></i></div>
+                 <h3 class="text-xl font-bold text-gray-900 mb-2">6. Mark as Returned</h3>
+                 <p class="text-gray-700">After the item is successfully returned, either party can mark it as 'Returned' to complete the item's journey.</p>
+            </div>
+            <div class="workflow-step system-action">
+                <div class="icon-box"><i data-feather="heart" class="h-6 w-6"></i></div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">7. Happy Reunion!</h3>
+                <p class="text-gray-700">The owners connect and arrange for the safe return of the item. Mission accomplished!</p>
+            </div>
+        </div>
+    </div>
+    <footer class="bg-white border-t">
+        <div class="max-w-7xl mx-auto py-8 px-4 text-center">
+            <p class="text-base text-gray-500">© 2025 Lost & Found AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        feather.replace();
+
+        function createItemCard(item, collectionType) {
+            let statusOverlay = '';
+            if (item.status === 'claimed') {
+                statusOverlay = '<div class="status-overlay claimed-overlay">CLAIMED</div>';
+            } else if (item.status === 'returned') {
+                statusOverlay = '<div class="status-overlay returned-overlay">RETURNED</div>';
+            }
+
+            const isActionable = item.status === 'available';
+            const buttonColor = collectionType === 'found_items_collection' ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-green-500 hover:bg-green-600';
+            
+            return `
+                <div class="bg-white rounded-lg overflow-hidden shadow-sm item-card">
+                    ${statusOverlay}
+                    <a href="item-details.html?id=${item.item_id}&collection=${collectionType}" class="block">
+                        <img src="${item.image_url}" alt="${item.item_name}" class="w-full">
+                    </a>
+                    <div class="p-4 card-content">
+                        <span class="text-xs font-semibold uppercase text-gray-500">${item.category || 'General'}</span>
+                        <h3 class="font-medium text-gray-900 truncate" title="${item.item_name}">${item.item_name}</h3>
+                        <p class="text-sm text-gray-500">Reported on: ${item.upload_time}</p>
+                        <div class="mt-3">
+                            <button onclick="viewMatchesAndClaim('${item.item_id}', '${collectionType}')" 
+                                    class="w-full text-sm px-3 py-2 rounded-md text-white ${buttonColor} transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                                    ${!isActionable ? 'disabled' : ''}>
+                                ${isActionable ? 'View Matches / Claim' : 'View Details'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function viewMatchesAndClaim(itemId, collectionType) {
+            const itemCard = document.querySelector(`button[onclick*="${itemId}"]`).closest('.item-card');
+            if (itemCard.querySelector('.status-overlay')) {
+                window.location.href = `item-details.html?id=${itemId}&collection=${collectionType}`;
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/get-potential-matches', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item_id: itemId, collection_name: collectionType })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to fetch potential matches.');
+                }
+                const result = await response.json();
+                
+                sessionStorage.setItem('reportDetails', JSON.stringify(result));
+                window.location.href = 'results.html';
+            } catch (error) {
+                alert('Could not fetch matches: ' + error.message);
+            }
+        }
+
+        function animateGridItems(gridSelector) {
+            const grid = document.querySelector(gridSelector);
+            const items = grid.querySelectorAll('.item-card');
+            items.forEach((item, index) => {
+                item.style.animation = `fadeInUp 0.5s ${index * 0.1}s ease-out forwards`;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const foundGrid = document.getElementById('found-items-grid');
+            const lostGrid = document.getElementById('lost-items-grid');
+            try {
+                const [foundResponse, lostResponse] = await Promise.all([
+                    fetch('/api/get-found-items'),
+                    fetch('/api/get-lost-items')
+                ]);
+
+                const foundItems = await foundResponse.json();
+                if(foundItems.length > 0) {
+                    foundGrid.innerHTML = foundItems.map(item => createItemCard(item, 'found_items_collection')).join('');
+                    animateGridItems('#found-items-grid');
+                } else {
+                    foundGrid.innerHTML = '<p class="col-span-4 text-center text-gray-500">No items reported yet.</p>';
+                }
+
+                const lostItems = await lostResponse.json();
+                if(lostItems.length > 0) {
+                    lostGrid.innerHTML = lostItems.map(item => createItemCard(item, 'lost_items_collection')).join('');
+                    animateGridItems('#lost-items-grid');
+                } else {
+                    lostGrid.innerHTML = '<p class="col-span-4 text-center text-gray-500">No items reported yet.</p>';
+                }
+            } catch (error)
+            {
+                console.error('Failed to fetch items:', error);
+                foundGrid.innerHTML = '<p class="col-span-4 text-center text-red-500">Could not load items.</p>';
+                lostGrid.innerHTML = '<p class="col-span-4 text-center text-red-500">Could not load items.</p>';
+            }
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

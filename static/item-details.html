@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Item Details - Lost & Found AI</title>
+    <link rel="icon" type="image/x-icon" href="/webcon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="/" class="flex items-center">
+                    <img class="h-8 w-auto" src="/logo.png" alt="Logo">
+                </a>
+                <div class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+                    <a href="found.html" class="text-gray-600 hover:text-indigo-600">Found Item</a>
+                    <a href="lost.html" class="text-gray-600 hover:text-indigo-600">Lost Item</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div id="item-details-card" class="bg-white shadow-lg rounded-lg overflow-hidden hidden">
+            <div class="md:flex">
+                <div class="md:flex-shrink-0">
+                    <img id="detail-image" class="h-80 w-full object-cover md:w-80" src="" alt="Item Image">
+                </div>
+                <div class="p-8 flex-grow">
+                    <div class="uppercase tracking-wide text-sm font-semibold text-indigo-600" id="item-type-status"></div>
+                    <h1 class="block mt-1 text-3xl leading-tight font-extrabold text-gray-900" id="detail-item-name"></h1>
+                    
+                    <div class="mt-4 text-gray-600">
+                        <p class="mb-2"><strong>Reported On:</strong> <span id="detail-upload-time"></span></p>
+                        <p class="mb-2"><strong>Location:</strong> <span id="detail-location-text">Not Provided</span> 
+                            <a id="detail-map-link" href="#" target="_blank" class="text-indigo-600 hover:underline hidden ml-2">
+                                <i data-feather="map-pin" class="inline-block mr-1 h-4 w-4"></i> View on Map
+                            </a>
+                        </p>
+                        <p class="mb-2"><strong>Reported by:</strong> <span id="detail-reporter-name"></span></p>
+                        <p class="mb-2"><strong>Contact Email:</strong> <span id="detail-contact-email"></span></p>
+                        <p class="mb-2"><strong>Contact Phone:</strong> <span id="detail-contact-phone"></span></p>
+                    </div>
+
+                    <div id="matched-status-section" class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg hidden">
+                        <p class="text-green-800 font-semibold flex items-center">
+                            <i data-feather="check-circle" class="mr-2 h-5 w-5"></i>
+                            This item has been <span class="uppercase font-bold ml-1">CLAIMED!</span>
+                        </p>
+                        <p class="text-green-700 mt-2">It was claimed in match with <span id="matched-item-name-link"></span>.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-8 py-6 text-center border-t">
+                <a href="/" class="inline-block px-6 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Back to Home</a>
+            </div>
+        </div>
+
+        <div id="loading-message" class="text-center text-gray-500 text-lg hidden">Loading item details...</div>
+        <div id="error-message" class="text-center text-red-600 text-lg hidden">Could not load item details.</div>
+    </div>
+
+    <script>
+        feather.replace();
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemId = urlParams.get('id');
+            const collectionName = urlParams.get('collection');
+
+            const loadingMessage = document.getElementById('loading-message');
+            const errorMessage = document.getElementById('error-message');
+            const itemDetailsCard = document.getElementById('item-details-card');
+            
+            loadingMessage.classList.remove('hidden');
+            itemDetailsCard.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            if (!itemId || !collectionName) {
+                errorMessage.textContent = "Invalid item ID or collection name.";
+                errorMessage.classList.remove('hidden');
+                loadingMessage.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/item-details/${collectionName}/${itemId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const item = await response.json();
+
+                document.getElementById('detail-image').src = item.image_url;
+                document.getElementById('detail-item-name').textContent = item.item_name;
+                document.getElementById('detail-upload-time').textContent = item.upload_time;
+                document.getElementById('page-title').textContent = `${item.item_name} Details - Lost & Found AI`;
+
+                const itemTypeStatus = document.getElementById('item-type-status');
+                let type = '';
+                if (item.finder_name) {
+                    type = 'FOUND ITEM';
+                    itemTypeStatus.classList.add('text-indigo-600');
+                    document.getElementById('detail-reporter-name').textContent = item.finder_name;
+                    document.getElementById('detail-contact-email').textContent = item.finder_contact_email;
+                    document.getElementById('detail-contact-phone').textContent = item.finder_phone;
+                } else {
+                    type = 'LOST ITEM';
+                    itemTypeStatus.classList.add('text-green-600');
+                    document.getElementById('detail-reporter-name').textContent = item.loser_name;
+                    document.getElementById('detail-contact-email').textContent = item.loser_contact_email;
+                    document.getElementById('detail-contact-phone').textContent = item.loser_phone;
+                }
+                itemTypeStatus.textContent = `${type} | STATUS: ${item.status.toUpperCase()}`;
+
+
+                const locationText = document.getElementById('detail-location-text');
+                const mapLink = document.getElementById('detail-map-link');
+                if (item.latitude && item.latitude !== 'Not Provided') {
+                    locationText.textContent = `(${parseFloat(item.latitude).toFixed(4)}, ${parseFloat(item.longitude).toFixed(4)})`;
+                    mapLink.href = `http://google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`;
+                    mapLink.classList.remove('hidden');
+                } else {
+                    locationText.textContent = "Location not provided.";
+                    mapLink.classList.add('hidden');
+                }
+
+                const matchedStatusSection = document.getElementById('matched-status-section');
+                if (item.status === 'claimed' && item.matched_with_id && item.matched_with_name) {
+                    matchedStatusSection.classList.remove('hidden');
+                    const matchedItemLink = document.getElementById('matched-item-name-link');
+                    // Determine the collection of the *matched* item
+                    let matchedCollectionType = '';
+                    if (collectionName === 'found_items_collection') {
+                        matchedCollectionType = 'lost_items_collection';
+                    } else if (collectionName === 'lost_items_collection') {
+                        matchedCollectionType = 'found_items_collection';
+                    }
+                    matchedItemLink.innerHTML = `<a href="item-details.html?id=${item.matched_with_id}&collection=${matchedCollectionType}" class="text-green-800 hover:underline font-bold">${item.matched_with_name}</a>`;
+                }
+
+                loadingMessage.classList.add('hidden');
+                itemDetailsCard.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error fetching item details:", error);
+                loadingMessage.classList.add('hidden');
+                errorMessage.textContent = "Failed to load item details. Please try again.";
+                errorMessage.classList.remove('hidden');
+            }
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

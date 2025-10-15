@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Claimed on Lost & Found AI!</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 20px; color: #333;">
+
+    <h2 style="color: #4F46E5;">Good News! Your Item Has Been Claimed!</h2>
+    
+    <p>
+        This email confirms a successful claim on the Lost & Found AI platform.
+    </p>
+    
+    <p>
+        The item **'{{ found_item_name }}'** (reported as found) and **'{{ lost_item_name }}'** (reported as lost) have been successfully matched and claimed by a user.
+    </p>
+    
+    <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">Contact Information:</h3>
+    
+    <p>
+        Please use the details below to get in touch and arrange the return/collection of the item.
+    </p>
+
+    <h4>Finder's Details ({{ finder_name }})</h4>
+    <ul>
+        <li><strong>Email:</strong> {{ finder_contact_email }}</li>
+        <li><strong>Phone:</strong> {{ finder_phone }}</li>
+    </ul>
+
+    <h4>Owner's Details ({{ loser_name }})</h4>
+    <ul>
+        <li><strong>Email:</strong> {{ loser_contact_email }}</li>
+        <li><strong>Phone:</strong> {{ loser_phone }}</li>
+    </ul>
+
+    <p style="margin-top: 30px; font-size: 0.9em; color: #777;">
+        - The Lost & Found AI Team
+    </p>
+
+</body>
+</html>
