@@ -8,34 +8,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
-        .upload-area { 
-            border: 2px dashed #D1D5DB;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-        }
-        .upload-area:hover {
-            background-color: #f9fafb;
-            border-color: #10b981;
-        }
+        .upload-area { border: 2px dashed #D1D5DB; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out; }
+        .upload-area:hover { background-color: #f9fafb; border-color: #10b981; } /* Green */
         #previewImage, #webcamFeed { max-height: 300px; object-fit: contain; }
-        
-        /* Input field focus styles */
-        input[type="text"], input[type="email"], input[type="tel"], select {
-            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus {
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-            outline: none;
-        }
+        input[type="text"], input[type="email"], input[type="tel"], select { transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); outline: none; } /* Green */
+        /* Removed modal styles */
+        .hidden { display: none; } /* Basic hidden utility */
     </style>
 </head>
 <body class="bg-gray-50 font-sans">
     <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
-                <a href="/" class="flex items-center">
-                    <img class="h-8 w-auto" src="/logo.png" alt="Logo">
-                    </a>
+                <a href="/" class="flex items-center"><img class="h-8 w-auto" src="/logo.png" alt="Logo"></a>
                 <div class="hidden md:flex space-x-8">
                     <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
                     <a href="found.html" class="text-gray-600 hover:text-indigo-600">Found Item</a>
@@ -47,12 +33,10 @@
     </nav>
     <div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div class="bg-white shadow rounded-lg overflow-hidden">
-            <div class="px-6 py-5 border-b">
-                <h3 class="text-lg font-medium text-gray-900">Report a Lost Item</h3>
-            </div>
+            <div class="px-6 py-5 border-b"><h3 class="text-lg font-medium text-gray-900">Report a Lost Item</h3></div>
             <div class="px-6 py-6">
                 <form id="lostForm">
-                    <div class="mb-8">
+                     <div class="mb-8">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Item Photo</label>
                         <video id="webcamFeed" class="hidden w-full rounded-lg mb-2" autoplay playsinline></video>
                         <div class="flex gap-2 mb-4">
@@ -67,13 +51,11 @@
                             <img id="previewImage" class="hidden mx-auto mt-4 rounded-lg">
                             <input type="file" id="fileInput" class="hidden" accept="image/*">
                         </div>
-                    </div>
-
-                    <div class="mb-6">
+                        </div>
+                     <div class="mb-6">
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-2">What is this item?</label>
                         <input type="text" id="description" required class="block w-full px-4 py-2 border border-gray-300 rounded-md" placeholder="e.g., 'Red Backpack'">
                     </div>
-
                     <div class="mb-6">
                         <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Item Category</label>
                         <select id="category" required class="block w-full px-4 py-2 border border-gray-300 rounded-md bg-white">
@@ -87,36 +69,23 @@
                             <option value="Other">Other</option>
                         </select>
                     </div>
-
-                    <div class="mb-8">
+                     <div class="mb-8">
                          <label class="block text-sm font-medium text-gray-700 mb-2">Last Known Location</label>
                          <button type="button" id="getLocationBtn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-500 hover:bg-green-600">
-                             <i data-feather="map-pin" class="mr-2 h-4 w-4"></i>
-                             Get My Current Location
+                             <i data-feather="map-pin" class="mr-2 h-4 w-4"></i> Get My Current Location
                          </button>
                          <p id="locationStatus" class="mt-2 text-sm text-gray-500">No location captured yet.</p>
                          <input type="hidden" id="latitude" name="latitude" value="Not Provided">
                          <input type="hidden" id="longitude" name="longitude" value="Not Provided">
                     </div>
-                    
                     <div class="mb-8">
                         <h4 class="text-sm font-medium text-gray-700 mb-3">Your Contact Information</h4>
                         <div class="grid grid-cols-1 gap-4">
-                             <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-                                <input type="text" id="name" required class="block w-full px-4 py-2 border border-gray-300 rounded-md">
-                            </div>
-                            <div>
-                                <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
-                                <input type="email" id="contact_email" required class="block w-full px-4 py-2 border border-gray-300 rounded-md">
-                            </div>
-                            <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Your Phone Number</label>
-                                <input type="tel" id="phone" required class="block w-full px-4 py-2 border border-gray-300 rounded-md">
-                            </div>
+                             <div><label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label><input type="text" id="name" required class="block w-full px-4 py-2 border border-gray-300 rounded-md"></div>
+                             <div><label for="contact_email" class="block text-sm font-medium text-gray-700 mb-1">Your Email</label><input type="email" id="contact_email" required class="block w-full px-4 py-2 border border-gray-300 rounded-md"></div>
+                             <div><label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Your Phone Number</label><input type="tel" id="phone" required class="block w-full px-4 py-2 border border-gray-300 rounded-md"></div>
                         </div>
                     </div>
-
                     <div class="flex justify-end">
                         <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-500 hover:bg-green-600 disabled:opacity-50">Report Lost Item<i data-feather="arrow-right" class="ml-2 h-4 w-4"></i></button>
                     </div>
@@ -124,155 +93,183 @@
             </div>
         </div>
     </div>
+
     <script>
-        // The JavaScript remains the same as the previous version.
-        feather.replace();
-        const lostForm = document.getElementById('lostForm');
-        const dropArea = document.getElementById('dropArea');
-        const fileInput = document.getElementById('fileInput');
-        const uploadContent = document.getElementById('uploadContent');
-        const previewImage = document.getElementById('previewImage');
-        const webcamFeed = document.getElementById('webcamFeed');
-        const startWebcamBtn = document.getElementById('startWebcam');
-        const captureBtn = document.getElementById('capture');
-        let capturedBlob = null;
-        let mediaStream = null;
-        const getLocationBtn = document.getElementById('getLocationBtn');
-        const locationStatus = document.getElementById('locationStatus');
-        const latitudeInput = document.getElementById('latitude');
-        const longitudeInput = document.getElementById('longitude');
+        // Simplified script - NO CENSORING LOGIC HERE
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
 
-        getLocationBtn.addEventListener('click', () => {
-            if ("geolocation" in navigator) {
-                locationStatus.textContent = "Getting location...";
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        latitudeInput.value = lat;
-                        longitudeInput.value = lon;
-                        locationStatus.textContent = `✅ Location captured: (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-                        locationStatus.classList.add('text-green-600');
-                    },
-                    (error) => {
-                        locationStatus.textContent = "❌ Could not get location. Please allow permission.";
-                        locationStatus.classList.add('text-red-600');
-                    }
-                );
-            } else {
-                locationStatus.textContent = "Geolocation is not supported by your browser.";
-            }
-        });
+            // --- Main Form Elements ---
+            const lostForm = document.getElementById('lostForm');
+            const fileInput = document.getElementById('fileInput');
+            const previewImage = document.getElementById('previewImage');
+            const submitButton = lostForm.querySelector('button[type="submit"]');
+            const latitudeInput = document.getElementById('latitude');
+            const longitudeInput = document.getElementById('longitude');
+            const getLocationBtn = document.getElementById('getLocationBtn');
+            const locationStatus = document.getElementById('locationStatus');
+            // Censor button removed
+            const dropArea = document.getElementById('dropArea');
+            const uploadContent = document.getElementById('uploadContent');
+            const webcamFeed = document.getElementById('webcamFeed');
+            const startWebcamBtn = document.getElementById('startWebcam');
+            const captureBtn = document.getElementById('capture');
 
-        dropArea.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', e => handleFiles(e.target.files));
-        function handleFiles(files) {
-            if (files.length) {
-                capturedBlob = null;
-                stopWebcam();
-                const file = files[0]; const reader = new FileReader();
-                reader.onload = function(e) { 
-                    uploadContent.classList.add('hidden'); previewImage.src = e.target.result; previewImage.classList.remove('hidden'); 
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+            let imageFile = null; // Holds the original File object before sending
+            let capturedBlob = null;
+            let mediaStream = null;
 
-        function stopWebcam() {
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
-                webcamFeed.srcObject = null;
-                webcamFeed.classList.add('hidden');
-                captureBtn.classList.add('hidden');
-                startWebcamBtn.textContent = 'Use Webcam';
-                mediaStream = null;
-            }
-            uploadContent.classList.remove('hidden');
-        }
+            // --- File Handling Logic ---
+            dropArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', e => handleFiles(e.target.files));
 
-        startWebcamBtn.addEventListener('click', async () => {
-            if (startWebcamBtn.textContent === 'Stop Webcam') {
-                stopWebcam();
-                return;
-            }
-
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                try {
-                    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    webcamFeed.srcObject = mediaStream;
-                    webcamFeed.play();
-                    webcamFeed.classList.remove('hidden');
-                    captureBtn.classList.remove('hidden');
-                    startWebcamBtn.textContent = 'Stop Webcam';
-                    uploadContent.classList.add('hidden');
-                    previewImage.classList.add('hidden');
+            function handleFiles(files) {
+                if (files && files.length > 0) {
+                    const file = files[0];
+                    imageFile = file; // Store the original file
                     capturedBlob = null;
-                } catch (err) {
-                    alert('Could not access the webcam: ' + err);
+                    stopWebcam();
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadContent.classList.add('hidden');
+                        previewImage.src = e.target.result;
+                        previewImage.classList.remove('hidden');
+                        // No censor button to show
+                    };
+                    reader.readAsDataURL(file);
                 }
-            } else {
-                alert('Webcam not supported by your browser.');
-            }
-        });
-        
-        captureBtn.addEventListener('click', () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = webcamFeed.videoWidth;
-            canvas.height = webcamFeed.videoHeight;
-            canvas.getContext('2d').drawImage(webcamFeed, 0, 0, canvas.width, canvas.height);
-            
-            previewImage.src = canvas.toDataURL('image/jpeg');
-            previewImage.classList.remove('hidden');
-            
-            canvas.toBlob(blob => { capturedBlob = blob; }, 'image/jpeg');
-            
-            stopWebcam();
-        });
-
-        lostForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const submitButton = this.querySelector('button[type="submit"]');
-            
-            if (!fileInput.files[0] && !capturedBlob) {
-                alert('Please upload or capture a photo.'); return;
-            }
-            if (!document.getElementById('category').value) {
-                alert('Please select an item category.'); return;
             }
 
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<div class="flex items-center justify-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Reporting...</div>';
-            
-            const formData = new FormData();
-            const imageFile = capturedBlob ? new File([capturedBlob], "webcam.jpg", {type: "image/jpeg"}) : fileInput.files[0];
-            
-            formData.append('image', imageFile);
-            formData.append('item_name', document.getElementById('description').value);
-            formData.append('category', document.getElementById('category').value);
-            formData.append('user_name', document.getElementById('name').value);
-            formData.append('user_contact_email', document.getElementById('contact_email').value);
-            formData.append('user_phone', document.getElementById('phone').value);
-            formData.append('latitude', latitudeInput.value);
-            formData.append('longitude', longitudeInput.value);
+            // --- Webcam Logic ---
+             function stopWebcam() {
+               if (mediaStream) {
+                   mediaStream.getTracks().forEach(track => track.stop());
+                   webcamFeed.srcObject = null;
+                   webcamFeed.classList.add('hidden');
+                   captureBtn.classList.add('hidden');
+                   startWebcamBtn.textContent = 'Use Webcam';
+                   mediaStream = null;
+               }
+               // Show upload prompt only if nothing is selected/captured
+               if (!imageFile && !capturedBlob) {
+                   uploadContent.classList.remove('hidden');
+                   previewImage.classList.add('hidden');
+               } else {
+                   uploadContent.classList.add('hidden');
+               }
+            }
 
-            try {
-                const response = await fetch('/api/report-lost', { method: 'POST', body: formData });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || 'Failed to report item.');
+            startWebcamBtn.addEventListener('click', async () => {
+                if (startWebcamBtn.textContent === 'Stop Webcam') { stopWebcam(); return; }
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    try {
+                        mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                        webcamFeed.srcObject = mediaStream;
+                        await webcamFeed.play();
+                        webcamFeed.classList.remove('hidden'); captureBtn.classList.remove('hidden');
+                        startWebcamBtn.textContent = 'Stop Webcam'; uploadContent.classList.add('hidden');
+                        previewImage.classList.add('hidden');
+                        imageFile = null; capturedBlob = null; // Clear previous selections
+                    } catch (err) { alert('Could not access webcam: ' + err); }
+                } else { alert('Webcam not supported.'); }
+            });
+
+             captureBtn.addEventListener('click', () => {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = webcamFeed.videoWidth;
+                tempCanvas.height = webcamFeed.videoHeight;
+                tempCanvas.getContext('2d').drawImage(webcamFeed, 0, 0, tempCanvas.width, tempCanvas.height);
+
+                const dataUrl = tempCanvas.toDataURL('image/jpeg');
+                previewImage.src = dataUrl;
+                previewImage.classList.remove('hidden');
+                uploadContent.classList.add('hidden'); // Hide upload prompt
+
+                tempCanvas.toBlob(blob => {
+                    if (blob) {
+                        capturedBlob = blob;
+                        // Store the captured image as the file to be submitted
+                        imageFile = new File([blob], "webcam_capture.jpg", {type: "image/jpeg"});
+                        // No censor button to show
+                    } else {
+                        console.error("Failed to create blob from canvas.");
+                    }
+                }, 'image/jpeg');
+
+                stopWebcam();
+            });
+
+            // --- Location Logic (Unchanged) ---
+             getLocationBtn.addEventListener('click', () => {
+                if ("geolocation" in navigator) {
+                    locationStatus.textContent = "Getting location...";
+                    getLocationBtn.disabled = true;
+                    getLocationBtn.innerHTML = '<i data-feather="loader" class="animate-spin mr-2 h-4 w-4"></i> Fetching...';
+                    feather.replace();
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude; const lon = position.coords.longitude;
+                            latitudeInput.value = lat; longitudeInput.value = lon;
+                            locationStatus.textContent = `✅ Location captured: (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+                            locationStatus.classList.add('text-green-600');
+                            getLocationBtn.disabled = false;
+                            getLocationBtn.innerHTML = '<i data-feather="map-pin" class="mr-2 h-4 w-4"></i> Location Fetched!';
+                            feather.replace();
+                        },
+                        (error) => {
+                            locationStatus.textContent = "❌ Could not get location. Allow permission or enter manually.";
+                            locationStatus.classList.add('text-red-600');
+                            getLocationBtn.disabled = false;
+                            getLocationBtn.innerHTML = '<i data-feather="map-pin" class="mr-2 h-4 w-4"></i> Get My Current Location';
+                            feather.replace();
+                        }
+                    );
+                } else { locationStatus.textContent = "Geolocation is not supported by your browser."; }
+            });
+
+            // --- Form Submit Logic (Sends original imageFile) ---
+            lostForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Check if imageFile (from upload or capture) exists
+                if (!imageFile) { alert('Please provide an image.'); return; }
+                if (!document.getElementById('category').value) { alert('Please select category.'); return; }
+
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<div class="flex items-center justify-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Reporting...</div>';
+
+                const formData = new FormData();
+                formData.append('image', imageFile, imageFile.name); // Send the original file
+                formData.append('item_name', document.getElementById('description').value);
+                formData.append('category', document.getElementById('category').value);
+                formData.append('user_name', document.getElementById('name').value);
+                formData.append('user_contact_email', document.getElementById('contact_email').value);
+                formData.append('user_phone', document.getElementById('phone').value);
+                formData.append('latitude', latitudeInput.value);
+                formData.append('longitude', longitudeInput.value);
+
+                try {
+                    // *** Use the correct API endpoint ***
+                    const response = await fetch('/api/report-lost', { method: 'POST', body: formData });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Failed to report item.');
+                    }
+                    const result = await response.json();
+
+                    imageFile = null; capturedBlob = null; // Clear state
+                    sessionStorage.setItem('reportDetails', JSON.stringify(result));
+                    window.location.href = 'results.html';
+
+                } catch (error) {
+                    alert('An error occurred: ' + error.message);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Report Lost Item <i data-feather="arrow-right" class="ml-2 h-4 w-4"></i>';
+                    feather.replace();
                 }
-                const result = await response.json();
-                
-                sessionStorage.setItem('reportDetails', JSON.stringify(result));
-                window.location.href = 'results.html';
-                
-            } catch (error) {
-                alert('An error occurred: ' + error.message);
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Report Lost Item <i data-feather="arrow-right" class="ml-2 h-4 w-4"></i>';
-                feather.replace();
-            }
-        });
+            });
+
+        }); // End of DOMContentLoaded
     </script>
 </body>
 </html>

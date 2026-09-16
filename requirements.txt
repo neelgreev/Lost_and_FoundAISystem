@@ -7,3 +7,4 @@ pydantic
 python-multipart
 Jinja2
 Pillow
+opencv-python-headless
